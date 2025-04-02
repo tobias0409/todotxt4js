@@ -4,8 +4,6 @@ todotxt4js is a lightweight, portable todotxt parser and integration written in 
 
 ## Features
 
-- **Plain Text Format:**  
-  Work with human-readable todotxt files in any Markdown editor.
 - **Robust Parsing:**  
   Parse tasks with optional completion markers, priorities, dates, projects, contexts, and key–value pairs.
 - **Customizable Behavior:**  
@@ -27,7 +25,7 @@ Or clone the repository directly:
 
 ```bash
 git clone https://github.com/tobias0409/todotxt4js.git
-cd todomd
+cd todotxt4js
 npm install
 ```
 
