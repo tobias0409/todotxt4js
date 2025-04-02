@@ -1,17 +1,6 @@
 # todotxt4js
 
-todotxt4js is a lightweight, portable todotxt parser and integration written in TypeScript. It provides a simple, class-based implementation to tokenize and parse tasks written in the todotxt format, making it easy to integrate into any Markdown-based workflow or application, such as Obsidian.
-
-## Features
-
-- **Robust Parsing:**  
-  Parse tasks with optional completion markers, priorities, dates, projects, contexts, and key–value pairs.
-- **Customizable Behavior:**  
-  Configure duplicate key handling ("error", "overwrite", or "merge") and register custom key handlers for validations and transformations.
-- **Todo List Management:**  
-  Create and manage a list of tasks from a multiline todotxt file. Easily add tasks and convert the list back to a string.
-- **Error Handling:**  
-  Uses custom error classes for clear reporting of parsing issues.
+todotxt4js is a lightweight, portable todotxt parser and integration written in TypeScript. It provides a simple, class-based implementation to tokenize and parse tasks written in the todotxt format.
 
 ## Installation
 
