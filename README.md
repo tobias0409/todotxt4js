@@ -20,13 +20,13 @@ todotxt4js is a lightweight, portable todotxt parser and integration written in 
 Install via npm:
 
 ```bash
-npm install todomd
+npm install todotxt4js
 ```
 
 Or clone the repository directly:
 
 ```bash
-git clone https://github.com/yourusername/todomd.git
+git clone https://github.com/tobias0409/todotxt4js.git
 cd todomd
 npm install
 ```
