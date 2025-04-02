@@ -1,7 +1,22 @@
+/**
+ * @fileoverview Provides the Scanner class for tokenizing todo.txt lines.
+ * The Scanner breaks down text lines into tokens representing different
+ * parts of a todo.txt task format.
+ * @module Scanner
+ */
+
 import { Token, TokenType } from "./Token";
 
+/**
+ * Scanner class that splits todo.txt lines into tokens.
+ * Identifies different components like completion markers, priorities,
+ * dates, projects, contexts, and key-value pairs.
+ */
 export class Scanner {
-  // Define token patterns in order of priority.
+  /**
+   * Definitions of token patterns in order of priority.
+   * @private
+   */
   private tokenDefinitions: { type: TokenType; regex: RegExp }[] = [
     { type: TokenType.COMPLETION, regex: /^x$/ },
     // PRIORITY is included here, but we override its type if not in an allowed position.
@@ -12,6 +27,11 @@ export class Scanner {
     { type: TokenType.KEY, regex: /^[A-Za-z]+:$/ },
   ];
 
+  /**
+   * Scans a line of text and produces an array of tokens.
+   * @param {string} line - The line of text to scan.
+   * @returns {Token[]} Array of tokens representing the line.
+   */
   public scan(line: string): Token[] {
     const tokens: Token[] = [];
     // Split the line on whitespace.

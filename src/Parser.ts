@@ -1,35 +1,61 @@
+/**
+ * @fileoverview Provides the Parser class for converting tokens into Task objects.
+ * This file includes the Parser class and supporting interfaces for configuring parsing behavior
+ * and handling custom key transformations.
+ * @module Parser
+ */
+
 import { Token, TokenType } from "./Token";
 import { TaskParsingError } from "./TaskParsingError";
 import { Task } from "./Task";
 
 /**
  * Interface for custom key handlers.
+ * Allows validation and transformation of key-value pairs.
  */
 export interface KeyHandler {
-  key: string; // e.g. "due"
+  /** The key name to handle (without the colon) */
+  key: string;
+
+  /** Optional function to validate values for this key */
   validate?: (value: string) => boolean;
+
+  /** Optional function to transform values for this key */
   transform?: (value: string) => any;
 }
 
 /**
- * Options for the parser.
- * duplicateKeyBehavior:
- *  - "error": throw an error on duplicate key.
- *  - "overwrite": replace the previous value.
- *  - "merge": store duplicate values in an array.
+ * Configuration options for the parser.
  */
 export interface ParserOptions {
+  /**
+   * How to handle duplicate keys:
+   * - "error": throw an error on duplicate key
+   * - "overwrite": replace the previous value
+   * - "merge": store duplicate values in an array
+   */
   duplicateKeyBehavior?: "error" | "overwrite" | "merge";
+
+  /** Array of custom handlers for specific keys */
   customKeyHandlers?: KeyHandler[];
 }
 
 /**
- * The Parser produces a Task instance.
+ * Parser class that converts tokens into a Task object.
+ * Processes token sequences to build a structured Task representation.
  */
 export class Parser {
+  /** Current position in the token stream */
   private pos: number = 0;
+
+  /** Parser configuration options */
   private options: ParserOptions;
 
+  /**
+   * Creates a new Parser instance.
+   * @param {Token[]} tokens - Array of tokens to parse.
+   * @param {ParserOptions} [options] - Optional configuration.
+   */
   constructor(private tokens: Token[], options?: ParserOptions) {
     // Set defaults if not provided.
     this.options = {
@@ -39,6 +65,11 @@ export class Parser {
     };
   }
 
+  /**
+   * Parses the tokens into a Task object.
+   * @returns {Task} The parsed Task.
+   * @throws {TaskParsingError} If parsing fails.
+   */
   public parseTask(): Task {
     const task = new Task();
 
@@ -132,23 +163,41 @@ export class Parser {
     return task;
   }
 
-  // Helper: checks if the current token matches a given type.
+  /**
+   * Checks if the current token matches a given type.
+   * @param {TokenType} type - The token type to check for.
+   * @returns {boolean} True if current token matches the type.
+   * @private
+   */
   private match(type: TokenType): boolean {
     const token = this.currentToken();
     return token !== null && token.type === type;
   }
 
-  // Helper: returns true if there is no token at pos+offset.
+  /**
+   * Returns true if there is no token at pos+offset.
+   * @param {number} [offset=0] - Optional offset from current position.
+   * @returns {boolean} True if position is past end of tokens.
+   * @private
+   */
   private isAtEnd(offset: number = 0): boolean {
     return this.pos + offset >= this.tokens.length;
   }
 
-  // Helper: returns the current token (or null if out of bounds).
+  /**
+   * Returns the current token or null if out of bounds.
+   * @returns {Token|null} Current token or null.
+   * @private
+   */
   private currentToken(): Token | null {
     return this.pos < this.tokens.length ? this.tokens[this.pos] : null;
   }
 
-  // Helper: returns the current token and advances the pointer.
+  /**
+   * Returns the current token and advances the pointer.
+   * @returns {Token} Current token before advancing.
+   * @private
+   */
   private consume(): Token {
     return this.tokens[this.pos++];
   }

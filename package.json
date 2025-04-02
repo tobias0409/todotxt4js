@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A scanner and parser implemented in Typescript for Todo.txt files.",
   "license": "MIT",
-  "author": "tobias040902",
+  "author": "tobias0409",
   "keywords": [
     "todo",
     "todo.txt",
@@ -16,13 +16,15 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "test": "jest"
+    "test": "jest",
+    "generate-docs": "typedoc --out docs src/index.ts"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.1",
     "tsup": "^8.4.0",
+    "typedoc": "^0.28.1",
     "typescript": "^5.8.2"
   }
 }
