@@ -23,9 +23,7 @@ npm install
 Here's a simple example to get you started:
 
 ```ts
-import { Scanner } from "todomd/Scanner";
-import { Parser } from "todomd/Parser";
-import { TodoList } from "todomd/TodoList";
+import { TodoList } from "todotxt4js/TodoList";
 
 const exampleText = `
 x (A) 2020-12-31 2020-12-30 Call mom +Family @Phone due:2021-01-01
