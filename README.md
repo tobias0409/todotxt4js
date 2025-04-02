@@ -1,6 +1,6 @@
-# todomd
+# todotxt4js
 
-todomd is a lightweight, portable todotxt parser and integration written in TypeScript. It provides a simple, class-based implementation to tokenize and parse tasks written in the todotxt format, making it easy to integrate into any Markdown-based workflow or application, such as Obsidian.
+todotxt4js is a lightweight, portable todotxt parser and integration written in TypeScript. It provides a simple, class-based implementation to tokenize and parse tasks written in the todotxt format, making it easy to integrate into any Markdown-based workflow or application, such as Obsidian.
 
 ## Features
 
