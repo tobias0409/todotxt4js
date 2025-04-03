@@ -78,7 +78,22 @@ export class Todo {
       [key: string]: any;
     } = {}
   ) {
-    this.id = crypto.randomUUID();
+    if (
+      typeof window !== "undefined" &&
+      window.crypto &&
+      window.crypto.randomUUID
+    ) {
+      this.id = window.crypto.randomUUID();
+    } else if (
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function"
+    ) {
+      this.id = globalThis.crypto.randomUUID();
+    } else {
+      // Fallback (should not occur in supported environments)
+      this.id = Math.random().toString(36).substr(2, 9);
+    }
+
     this.completed = options.completed || false;
 
     // Handle priority: normalize to form "(X)"
