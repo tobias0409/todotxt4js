@@ -34,7 +34,7 @@ npm install
 ### Basic Example
 
 ```ts
-import { TodoList, Task } from "todotxt4js";
+import { TodoList, Todo } from "todotxt4js";
 
 // Create a new TodoList and parse existing todo.txt content
 const todoList = new TodoList();
@@ -45,35 +45,35 @@ x 2023-03-20 2023-03-01 Buy groceries @store
 `;
 todoList.parse(todoContent);
 
-// Add a new task by string
-todoList.addTask(
+// Add a new todo by string
+todoList.addTodo(
   "(B) Schedule dentist appointment @phone +Health due:2023-05-10"
 );
 
-// Add a new task by object
-const newTask = new Task({
+// Add a new todo by object
+const newTodo = new Todo({
   description: "Prepare presentation",
   priority: "C",
   project: "Work", // Will be formatted to +Work
   context: "computer", // Will be formatted to @computer
   due: "2023-04-15",
 });
-todoList.addTask(newTask);
+todoList.addTodo(newTodo);
 
-// Display all tasks
+// Display all todos
 console.log(todoList.toString());
 
-// Get incomplete tasks due in the next 7 days
-const upcomingTasks = todoList.getDueInNextNDaysTasks(7);
-console.log("Tasks due soon:", upcomingTasks.length);
+// Get incomplete todos due in the next 7 days
+const upcomingTodos = todoList.getDueInNextNDaysTodos(7);
+console.log("Todos due soon:", upcomingTodos.length);
 
-// Filter tasks by multiple criteria
-const phoneTasks = todoList.filter({
+// Filter todos by multiple criteria
+const phoneTodos = todoList.filter({
   completed: false,
   context: "@phone",
   dueBefore: "2023-05-01",
 });
-console.log("Phone tasks due before May:", phoneTasks.length);
+console.log("Phone todos due before May:", phoneTodos.length);
 
 // Get all unique projects in use
 const projects = todoList.getProjects();
@@ -83,10 +83,10 @@ console.log("Projects:", projects);
 ### Working with Tasks
 
 ```ts
-import { Task, RecurrencePattern } from "todotxt4js";
+import { Todo, RecurrencePattern } from "todotxt4js";
 
-// Create a task
-const task = new Task({
+// Create a todo
+const todo = new Todo({
   description: "Weekly team meeting",
   priority: "B",
   context: "work",
@@ -94,34 +94,34 @@ const task = new Task({
   due: "2023-05-01",
 });
 
-// Manipulate task properties
-task.setDescription("Weekly team sync meeting");
-task.setPriority("A");
-task.addContext("zoom");
-task.addProject("Important");
-task.setDueDate("2023-05-08");
+// Manipulate todo properties
+todo.setDescription("Weekly team sync meeting");
+todo.setPriority("A");
+todo.addContext("zoom");
+todo.addProject("Important");
+todo.setDueDate("2023-05-08");
 
 // Check due status
-console.log("Days until due:", task.daysUntilDue());
-console.log("Is overdue:", task.isOverdue());
-console.log("Is due today:", task.isDueToday());
+console.log("Days until due:", todo.daysUntilDue());
+console.log("Is overdue:", todo.isOverdue());
+console.log("Is due today:", todo.isDueToday());
 
 // Set up recurrence
-task.setRecurrence({ type: "weekly", interval: 1 });
+todo.setRecurrence({ type: "weekly", interval: 1 });
 
-// Make the task recurring
-const nextOccurrence = task.generateRecurringTask();
+// Make the todo recurring
+const nextOccurrence = todo.generateRecurringTodo();
 if (nextOccurrence) {
   console.log("Next occurrence due:", nextOccurrence.getDueDate());
 }
 
 // Mark as completed
-task.markCompleted(); // Uses today's date
+todo.markCompleted(); // Uses today's date
 // Or specify completion date:
-// task.markCompleted("2023-05-01");
+// todo.markCompleted("2023-05-01");
 
 // Convert to string format
-console.log(task.toString());
+console.log(todo.toString());
 ```
 
 ### Advanced Filtering and Querying
@@ -131,15 +131,15 @@ import { TodoList } from "todotxt4js";
 
 const todoList = new TodoList(existingTodoContent);
 
-// Get tasks by various criteria
-const workTasks = todoList.getTasksByProject("+Work");
-const phoneTasks = todoList.getTasksByContext("@phone");
-const highPriorityTasks = todoList.getTasksByProperty("priority", "(A)");
-const dueSoonTasks = todoList.getDueInNextNDaysTasks(7);
-const overdueTasks = todoList.getOverdueTasks();
+// Get todos by various criteria
+const workTodos = todoList.getTodosByProject("+Work");
+const phoneTodos = todoList.getTodosByContext("@phone");
+const highPriorityTodos = todoList.getTodosByProperty("priority", "(A)");
+const dueSoonTodos = todoList.getDueInNextNDaysTodos(7);
+const overdueTodos = todoList.getOverdueTodos();
 
-// Get task by line number (useful for UI integration)
-const taskAtLine3 = todoList.getTaskByLineNumber(2); // 0-based index
+// Get todo by line number (useful for UI integration)
+const todoAtLine3 = todoList.getTodoByLineNumber(2); // 0-based index
 
 // Get available metadata
 const allProjects = todoList.getProjects();
@@ -147,7 +147,7 @@ const allContexts = todoList.getContexts();
 const allKeyNames = todoList.getKeyNames();
 
 // Multi-criteria filtering
-const filteredTasks = todoList.filter({
+const filteredTodos = todoList.filter({
   completed: false,
   priority: "(A)",
   project: "+Work",
