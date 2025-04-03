@@ -7,7 +7,7 @@
 
 import { Scanner } from "./Scanner";
 import { Parser, ParserOptions } from "./Parser";
-import { Task } from "./Task";
+import { Task, RecurrencePattern } from "./Task";
 
 /**
  * A class representing a collection of todo.txt tasks.
@@ -80,6 +80,18 @@ export class TodoList {
   }
 
   /**
+   * Get a task by its position in the task list (zero-based).
+   * @param {number} lineNumber - The line number (0-based index).
+   * @returns {Task|undefined} The task at the specified position or undefined if out of bounds.
+   */
+  public getTaskByLineNumber(lineNumber: number): Task | undefined {
+    if (lineNumber < 0 || lineNumber >= this.tasks.length) {
+      return undefined;
+    }
+    return this.tasks[lineNumber];
+  }
+
+  /**
    * Get a specific task by its unique identifier.
    * @param {string} taskId - The unique identifier of the task to retrieve.
    * @returns {Task|undefined} The matching task or undefined if not found.
@@ -116,6 +128,54 @@ export class TodoList {
         return taskValue === value;
       }
     });
+  }
+
+  /**
+   * Get all unique projects used across all tasks.
+   * @returns {string[]} Array of unique project names.
+   */
+  public getProjects(): string[] {
+    const projects = new Set<string>();
+
+    for (const task of this.tasks) {
+      for (const project of task.projects) {
+        projects.add(project);
+      }
+    }
+
+    return Array.from(projects).sort();
+  }
+
+  /**
+   * Get all unique contexts used across all tasks.
+   * @returns {string[]} Array of unique context names.
+   */
+  public getContexts(): string[] {
+    const contexts = new Set<string>();
+
+    for (const task of this.tasks) {
+      for (const context of task.contexts) {
+        contexts.add(context);
+      }
+    }
+
+    return Array.from(contexts).sort();
+  }
+
+  /**
+   * Get all unique key names used in key-value pairs across all tasks.
+   * @returns {string[]} Array of unique key names.
+   */
+  public getKeyNames(): string[] {
+    const keys = new Set<string>();
+
+    for (const task of this.tasks) {
+      for (const key in task.keyValues) {
+        keys.add(key);
+      }
+    }
+
+    return Array.from(keys).sort();
   }
 
   /**
@@ -301,34 +361,7 @@ export class TodoList {
   public toString(): string {
     return this.tasks
       .map((task) => {
-        const parts: string[] = [];
-        if (task.completed) {
-          parts.push("x");
-          if (task.completionDate) {
-            parts.push(task.completionDate);
-          }
-          if (task.creationDate) {
-            parts.push(task.creationDate);
-          }
-        } else {
-          if (task.priority) {
-            parts.push(task.priority);
-          }
-          if (task.creationDate) {
-            parts.push(task.creationDate);
-          }
-        }
-        parts.push(task.description);
-        // Append key-value pairs.
-        for (const key in task.keyValues) {
-          const value = task.keyValues[key];
-          if (Array.isArray(value)) {
-            parts.push(`${key}:${value.join(",")}`);
-          } else {
-            parts.push(`${key}:${value}`);
-          }
-        }
-        return parts.join(" ");
+        return task.toString();
       })
       .join("\n");
   }

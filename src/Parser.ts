@@ -71,6 +71,9 @@ export class Parser {
    * @throws {TaskParsingError} If parsing fails.
    */
   public parseTask(): Task {
+    // Reset position for each parse
+    this.pos = 0;
+
     const task = new Task();
 
     // Process optional completion marker.
@@ -94,6 +97,7 @@ export class Parser {
       }
       this.consume();
     }
+
     // For completed tasks, a second DATE token is the creation date.
     if (task.completed && this.match(TokenType.DATE)) {
       task.creationDate = this.currentToken()!.value;
@@ -111,14 +115,17 @@ export class Parser {
         let value: any = valueToken.value;
 
         // Apply custom key handlers if available.
-        if (this.options.customKeyHandlers) {
+        if (
+          this.options.customKeyHandlers &&
+          this.options.customKeyHandlers.length > 0
+        ) {
           const handler = this.options.customKeyHandlers.find(
             (h) => h.key === keyName
           );
           if (handler) {
             if (handler.validate && !handler.validate(value)) {
               throw new TaskParsingError(
-                `Validation failed for key '${keyName}' with value '${value}'.`
+                `Validation failed for key '${keyName}' with value '${value}'`
               );
             }
             if (handler.transform) {
@@ -128,17 +135,17 @@ export class Parser {
         }
 
         // Handle duplicate keys.
-        if (task.keyValues.hasOwnProperty(keyName)) {
+        if (keyName in task.keyValues) {
           switch (this.options.duplicateKeyBehavior) {
             case "error":
               throw new TaskParsingError(
-                `Duplicate key '${keyName}' encountered.`
+                `Duplicate key '${keyName}' encountered`
               );
             case "merge":
               if (!Array.isArray(task.keyValues[keyName])) {
                 task.keyValues[keyName] = [task.keyValues[keyName]];
               }
-              task.keyValues[keyName].push(value);
+              (task.keyValues[keyName] as any[]).push(value);
               break;
             case "overwrite":
             default:
@@ -159,6 +166,7 @@ export class Parser {
         }
       }
     }
+
     task.description = descriptionParts.join(" ").trim();
     return task;
   }
