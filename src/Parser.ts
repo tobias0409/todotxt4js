@@ -1,13 +1,13 @@
 /**
- * @fileoverview Provides the Parser class for converting tokens into Task objects.
+ * @fileoverview Provides the Parser class for converting tokens into Todo objects.
  * This file includes the Parser class and supporting interfaces for configuring parsing behavior
  * and handling custom key transformations.
  * @module Parser
  */
 
 import { Token, TokenType } from "./Token";
-import { TaskParsingError } from "./TaskParsingError";
-import { Task } from "./Task";
+import { TodoParsingError } from "./TodoParsingError";
+import { Todo } from "./Todo";
 
 /**
  * Interface for custom key handlers.
@@ -41,8 +41,8 @@ export interface ParserOptions {
 }
 
 /**
- * Parser class that converts tokens into a Task object.
- * Processes token sequences to build a structured Task representation.
+ * Parser class that converts tokens into a Todo object.
+ * Processes token sequences to build a structured Todo representation.
  */
 export class Parser {
   /** Current position in the token stream */
@@ -66,41 +66,41 @@ export class Parser {
   }
 
   /**
-   * Parses the tokens into a Task object.
-   * @returns {Task} The parsed Task.
-   * @throws {TaskParsingError} If parsing fails.
+   * Parses the tokens into a Todo object.
+   * @returns {Todo} The parsed Todo.
+   * @throws {TodoParsingError} If parsing fails.
    */
-  public parseTask(): Task {
+  public parseTodo(): Todo {
     // Reset position for each parse
     this.pos = 0;
 
-    const task = new Task();
+    const todo = new Todo();
 
     // Process optional completion marker.
     if (this.match(TokenType.COMPLETION)) {
-      task.completed = true;
+      todo.completed = true;
       this.consume();
     }
 
     // Process optional priority.
     if (this.match(TokenType.PRIORITY)) {
-      task.priority = this.currentToken()!.value;
+      todo.priority = this.currentToken()!.value;
       this.consume();
     }
 
     // Process date tokens.
     if (this.match(TokenType.DATE)) {
-      if (task.completed) {
-        task.completionDate = this.currentToken()!.value;
+      if (todo.completed) {
+        todo.completionDate = this.currentToken()!.value;
       } else {
-        task.creationDate = this.currentToken()!.value;
+        todo.creationDate = this.currentToken()!.value;
       }
       this.consume();
     }
 
-    // For completed tasks, a second DATE token is the creation date.
-    if (task.completed && this.match(TokenType.DATE)) {
-      task.creationDate = this.currentToken()!.value;
+    // For completed todos, a second DATE token is the creation date.
+    if (todo.completed && this.match(TokenType.DATE)) {
+      todo.creationDate = this.currentToken()!.value;
       this.consume();
     }
 
@@ -124,7 +124,7 @@ export class Parser {
           );
           if (handler) {
             if (handler.validate && !handler.validate(value)) {
-              throw new TaskParsingError(
+              throw new TodoParsingError(
                 `Validation failed for key '${keyName}' with value '${value}'`
               );
             }
@@ -135,40 +135,40 @@ export class Parser {
         }
 
         // Handle duplicate keys.
-        if (keyName in task.keyValues) {
+        if (keyName in todo.keyValues) {
           switch (this.options.duplicateKeyBehavior) {
             case "error":
-              throw new TaskParsingError(
+              throw new TodoParsingError(
                 `Duplicate key '${keyName}' encountered`
               );
             case "merge":
-              if (!Array.isArray(task.keyValues[keyName])) {
-                task.keyValues[keyName] = [task.keyValues[keyName]];
+              if (!Array.isArray(todo.keyValues[keyName])) {
+                todo.keyValues[keyName] = [todo.keyValues[keyName]];
               }
-              (task.keyValues[keyName] as any[]).push(value);
+              (todo.keyValues[keyName] as any[]).push(value);
               break;
             case "overwrite":
             default:
-              task.keyValues[keyName] = value;
+              todo.keyValues[keyName] = value;
               break;
           }
         } else {
-          task.keyValues[keyName] = value;
+          todo.keyValues[keyName] = value;
         }
       } else {
         const token = this.consume();
         descriptionParts.push(token.value);
         // Capture projects and contexts.
         if (token.type === TokenType.PROJECT) {
-          task.projects.push(token.value);
+          todo.projects.push(token.value);
         } else if (token.type === TokenType.CONTEXT) {
-          task.contexts.push(token.value);
+          todo.contexts.push(token.value);
         }
       }
     }
 
-    task.description = descriptionParts.join(" ").trim();
-    return task;
+    todo.description = descriptionParts.join(" ").trim();
+    return todo;
   }
 
   /**

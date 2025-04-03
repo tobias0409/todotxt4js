@@ -1,28 +1,28 @@
 /**
- * @fileoverview Provides the TodoList class for managing collections of tasks.
- * This class handles parsing, adding, editing, and deleting todo.txt tasks, along with
+ * @fileoverview Provides the TodoList class for managing collections of todos.
+ * This class handles parsing, adding, editing, and deleting todo.txt todos, along with
  * querying and filtering functionalities.
  * @module TodoList
  */
 
 import { Scanner } from "./Scanner";
 import { Parser, ParserOptions } from "./Parser";
-import { Task, RecurrencePattern } from "./Task";
+import { Todo, RecurrencePattern } from "./Todo";
 
 /**
- * A class representing a collection of todo.txt tasks.
- * Provides methods for parsing, managing, and querying tasks in the todo.txt format.
+ * A class representing a collection of todo.txt todos.
+ * Provides methods for parsing, managing, and querying todos in the todo.txt format.
  */
 export class TodoList {
-  /** Array of Task objects managed by this TodoList */
-  tasks: Task[];
+  /** Array of Todo objects managed by this TodoList */
+  todos: Todo[];
 
   /**
    * Creates a new TodoList instance.
-   * @param {string} [text] - Optional todotxt text to parse into tasks.
+   * @param {string} [text] - Optional todotxt text to parse into todos.
    */
   constructor(text?: string) {
-    this.tasks = [];
+    this.todos = [];
 
     if (text) {
       this.parse(text);
@@ -30,115 +30,115 @@ export class TodoList {
   }
 
   /**
-   * Parse a multiline todotxt text. Each non-empty line is parsed as a separate task.
-   * Throws an error if any task fails to parse.
+   * Parse a multiline todotxt text. Each non-empty line is parsed as a separate todo.
+   * Throws an error if any todo fails to parse.
    * @param {string} text - The todotxt formatted string to parse.
    * @param {ParserOptions} [parserOptions] - Optional configuration for the parser.
    */
   public parse(text: string, parserOptions?: ParserOptions): void;
 
   /**
-   * Add multiple task objects directly to the list.
-   * @param {Task[]} tasks - Array of Task objects to add to the list.
+   * Add multiple todo objects directly to the list.
+   * @param {Todo[]} todos - Array of Todo objects to add to the list.
    */
-  public parse(tasks: Task[]): void;
+  public parse(todos: Todo[]): void;
 
   /**
    * Implementation of parse that handles both overloads.
-   * @param {string|Task[]} textOrTasks - Either a todotxt string or an array of Task objects.
+   * @param {string|Todo[]} textOrTodos - Either a todotxt string or an array of Todo objects.
    * @param {ParserOptions} [parserOptions] - Optional configuration for the parser.
    */
   public parse(
-    textOrTasks: string | Task[],
+    textOrTodos: string | Todo[],
     parserOptions?: ParserOptions
   ): void {
-    this.tasks = [];
+    this.todos = [];
 
-    if (typeof textOrTasks === "string") {
-      const lines = textOrTasks
+    if (typeof textOrTodos === "string") {
+      const lines = textOrTodos
         .split(/\r?\n/)
         .filter((line) => line.trim() !== "");
       const scanner = new Scanner();
       for (const line of lines) {
         const tokens = scanner.scan(line);
         const parser = new Parser(tokens, parserOptions);
-        const task = parser.parseTask();
-        this.tasks.push(task);
+        const todo = parser.parseTodo();
+        this.todos.push(todo);
       }
     } else {
-      // Array of Task objects
-      this.tasks = [...textOrTasks];
+      // Array of Todo objects
+      this.todos = [...textOrTodos];
     }
   }
 
   /**
-   * Returns all tasks in the list.
-   * @returns {Task[]} Array of all Task objects.
+   * Returns all todos in the list.
+   * @returns {Todo[]} Array of all Todo objects.
    */
-  public getTasks(): Task[] {
-    return this.tasks;
+  public getTodos(): Todo[] {
+    return this.todos;
   }
 
   /**
-   * Get a task by its position in the task list (zero-based).
+   * Get a todo by its position in the todo list (zero-based).
    * @param {number} lineNumber - The line number (0-based index).
-   * @returns {Task|undefined} The task at the specified position or undefined if out of bounds.
+   * @returns {Todo|undefined} The todo at the specified position or undefined if out of bounds.
    */
-  public getTaskByLineNumber(lineNumber: number): Task | undefined {
-    if (lineNumber < 0 || lineNumber >= this.tasks.length) {
+  public getTodoByLineNumber(lineNumber: number): Todo | undefined {
+    if (lineNumber < 0 || lineNumber >= this.todos.length) {
       return undefined;
     }
-    return this.tasks[lineNumber];
+    return this.todos[lineNumber];
   }
 
   /**
-   * Get a specific task by its unique identifier.
-   * @param {string} taskId - The unique identifier of the task to retrieve.
-   * @returns {Task|undefined} The matching task or undefined if not found.
+   * Get a specific todo by its unique identifier.
+   * @param {string} todoId - The unique identifier of the todo to retrieve.
+   * @returns {Todo|undefined} The matching todo or undefined if not found.
    */
-  public getTask(taskId: string): Task | undefined {
-    return this.tasks.find((task) => task.id === taskId);
+  public getTodo(todoId: string): Todo | undefined {
+    return this.todos.find((todo) => todo.id === todoId);
   }
 
   /**
-   * Get tasks that match a specific property value.
-   * @param {keyof Task} property - The property name to match.
+   * Get todos that match a specific property value.
+   * @param {keyof Todo} property - The property name to match.
    * @param {any} value - The value to match against.
-   * @returns {Task[]} Array of tasks matching the property value.
+   * @returns {Todo[]} Array of todos matching the property value.
    */
-  public getTasksByProperty<T extends keyof Task>(
+  public getTodosByProperty<T extends keyof Todo>(
     property: T,
-    value: Task[T]
-  ): Task[] {
-    return this.tasks.filter((task) => task[property] === value);
+    value: Todo[T]
+  ): Todo[] {
+    return this.todos.filter((todo) => todo[property] === value);
   }
 
   /**
-   * Get tasks that match a specific key-value pair.
+   * Get todos that match a specific key-value pair.
    * @param {string} key - The key name to match.
    * @param {any} value - The value to match against.
-   * @returns {Task[]} Array of tasks matching the key-value pair.
+   * @returns {Todo[]} Array of todos matching the key-value pair.
    */
-  public getTasksByKeyValue(key: string, value: any): Task[] {
-    return this.tasks.filter((task) => {
-      const taskValue = task.keyValues[key];
-      if (Array.isArray(taskValue)) {
-        return taskValue.includes(value);
+  public getTodosByKeyValue(key: string, value: any): Todo[] {
+    return this.todos.filter((todo) => {
+      const todoValue = todo.keyValues[key];
+      if (Array.isArray(todoValue)) {
+        return todoValue.includes(value);
       } else {
-        return taskValue === value;
+        return todoValue === value;
       }
     });
   }
 
   /**
-   * Get all unique projects used across all tasks.
+   * Get all unique projects used across all todos.
    * @returns {string[]} Array of unique project names.
    */
   public getProjects(): string[] {
     const projects = new Set<string>();
 
-    for (const task of this.tasks) {
-      for (const project of task.projects) {
+    for (const todo of this.todos) {
+      for (const project of todo.projects) {
         projects.add(project);
       }
     }
@@ -147,14 +147,14 @@ export class TodoList {
   }
 
   /**
-   * Get all unique contexts used across all tasks.
+   * Get all unique contexts used across all todos.
    * @returns {string[]} Array of unique context names.
    */
   public getContexts(): string[] {
     const contexts = new Set<string>();
 
-    for (const task of this.tasks) {
-      for (const context of task.contexts) {
+    for (const todo of this.todos) {
+      for (const context of todo.contexts) {
         contexts.add(context);
       }
     }
@@ -163,14 +163,14 @@ export class TodoList {
   }
 
   /**
-   * Get all unique key names used in key-value pairs across all tasks.
+   * Get all unique key names used in key-value pairs across all todos.
    * @returns {string[]} Array of unique key names.
    */
   public getKeyNames(): string[] {
     const keys = new Set<string>();
 
-    for (const task of this.tasks) {
-      for (const key in task.keyValues) {
+    for (const todo of this.todos) {
+      for (const key in todo.keyValues) {
         keys.add(key);
       }
     }
@@ -179,201 +179,201 @@ export class TodoList {
   }
 
   /**
-   * Get tasks that include a specific context.
+   * Get todos that include a specific context.
    * @param {string} context - The context to search for (without the @ symbol).
-   * @returns {Task[]} Array of tasks containing the specified context.
+   * @returns {Todo[]} Array of todos containing the specified context.
    */
-  public getTasksByContext(context: string): Task[] {
-    return this.tasks.filter((task) => task.contexts.includes(context));
+  public getTodosByContext(context: string): Todo[] {
+    return this.todos.filter((todo) => todo.contexts.includes(context));
   }
 
   /**
-   * Get tasks that include a specific project.
+   * Get todos that include a specific project.
    * @param {string} project - The project to search for (without the + symbol).
-   * @returns {Task[]} Array of tasks containing the specified project.
+   * @returns {Todo[]} Array of todos containing the specified project.
    */
-  public getTasksByProject(project: string): Task[] {
-    return this.tasks.filter((task) => task.projects.includes(project));
+  public getTodosByProject(project: string): Todo[] {
+    return this.todos.filter((todo) => todo.projects.includes(project));
   }
 
   /**
-   * Get tasks that are marked as completed.
-   * @returns {Task[]} Array of completed tasks.
+   * Get todos that are marked as completed.
+   * @returns {Todo[]} Array of completed todos.
    */
-  public getCompletedTasks(): Task[] {
-    return this.tasks.filter((task) => task.completed);
+  public getCompletedTodos(): Todo[] {
+    return this.todos.filter((todo) => todo.completed);
   }
 
   /**
-   * Get tasks that are not marked as completed.
-   * @returns {Task[]} Array of incomplete tasks.
+   * Get todos that are not marked as completed.
+   * @returns {Todo[]} Array of incomplete todos.
    */
-  public getIncompleteTasks(): Task[] {
-    return this.tasks.filter((task) => !task.completed);
+  public getIncompleteTodos(): Todo[] {
+    return this.todos.filter((todo) => !todo.completed);
   }
 
   /**
-   * Get tasks that are due today.
-   * @returns {Task[]} Array of tasks due today.
+   * Get todos that are due today.
+   * @returns {Todo[]} Array of todos due today.
    */
-  public getDueTodayTasks(): Task[] {
+  public getDueTodayTodos(): Todo[] {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    return this.tasks.filter((task) => {
-      const dueDate = task.keyValues["due"];
+    return this.todos.filter((todo) => {
+      const dueDate = todo.keyValues["due"];
       return dueDate && dueDate === today;
     });
   }
 
   /**
-   * Get tasks that are past their due date and not completed.
-   * @returns {Task[]} Array of overdue tasks.
+   * Get todos that are past their due date and not completed.
+   * @returns {Todo[]} Array of overdue todos.
    */
-  public getOverdueTasks(): Task[] {
+  public getOverdueTodos(): Todo[] {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    return this.tasks.filter((task) => {
-      const dueDate = task.keyValues["due"];
-      return dueDate && dueDate < today && !task.completed;
+    return this.todos.filter((todo) => {
+      const dueDate = todo.keyValues["due"];
+      return dueDate && dueDate < today && !todo.completed;
     });
   }
 
   /**
-   * Get tasks that are due within a specified number of days from today.
+   * Get todos that are due within a specified number of days from today.
    * @param {number} n - Number of days from today.
-   * @returns {Task[]} Array of tasks due within the specified time period.
+   * @returns {Todo[]} Array of todos due within the specified time period.
    */
-  public getDueInNextNDaysTasks(n: number): Task[] {
+  public getDueInNextNDaysTodos(n: number): Todo[] {
     const today = new Date();
     const futureDate = new Date(today);
     futureDate.setDate(today.getDate() + n);
     const futureDateString = futureDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    return this.tasks.filter((task) => {
-      const dueDate = task.keyValues["due"];
-      return dueDate && dueDate <= futureDateString && !task.completed;
+    return this.todos.filter((todo) => {
+      const dueDate = todo.keyValues["due"];
+      return dueDate && dueDate <= futureDateString && !todo.completed;
     });
   }
 
   /**
-   * Add a new task from a single line of text.
+   * Add a new todo from a single line of text.
    * @param {string} line - The todotxt formatted line to parse.
    * @param {ParserOptions} [parserOptions] - Optional configuration for the parser.
    */
-  public addTask(line: string, parserOptions?: ParserOptions): void;
+  public addTodo(line: string, parserOptions?: ParserOptions): void;
 
   /**
-   * Add a task object directly to the list.
-   * @param {Task} task - The Task object to add.
+   * Add a todo object directly to the list.
+   * @param {Todo} todo - The Todo object to add.
    */
-  public addTask(task: Task): void;
+  public addTodo(todo: Todo): void;
 
   /**
-   * Implementation of addTask that handles both overloads.
-   * @param {string|Task} taskOrLine - Either a todotxt string or a Task object.
+   * Implementation of addTodo that handles both overloads.
+   * @param {string|Todo} todoOrLine - Either a todotxt string or a Todo object.
    * @param {ParserOptions} [parserOptions] - Optional configuration for the parser.
    */
-  public addTask(
-    taskOrLine: string | Task,
+  public addTodo(
+    todoOrLine: string | Todo,
     parserOptions?: ParserOptions
   ): void {
-    if (typeof taskOrLine === "string") {
+    if (typeof todoOrLine === "string") {
       // String input - parse it
       const scanner = new Scanner();
-      const tokens = scanner.scan(taskOrLine);
+      const tokens = scanner.scan(todoOrLine);
       const parser = new Parser(tokens, parserOptions);
-      const task = parser.parseTask();
-      this.tasks.push(task);
+      const todo = parser.parseTodo();
+      this.todos.push(todo);
     } else {
-      // Task object input - add directly
-      this.tasks.push(taskOrLine);
+      // Todo object input - add directly
+      this.todos.push(todoOrLine);
     }
   }
 
   /**
-   * Edit a task by id using an updater function.
-   * @param {string} taskId - The unique identifier of the task to edit.
-   * @param {function} updater - Function that modifies the task object.
-   * @throws {Error} If the task with the specified ID is not found.
+   * Edit a todo by id using an updater function.
+   * @param {string} todoId - The unique identifier of the todo to edit.
+   * @param {function} updater - Function that modifies the todo object.
+   * @throws {Error} If the todo with the specified ID is not found.
    */
-  public editTask(taskId: string, updater: (task: Task) => void): void;
+  public editTodo(todoId: string, updater: (todo: Todo) => void): void;
 
   /**
-   * Edit a task by providing a task object with the same ID.
-   * @param {Task} updatedTask - The modified Task object with the same ID as the task to replace.
-   * @throws {Error} If the task with the specified ID is not found.
+   * Edit a todo by providing a todo object with the same ID.
+   * @param {Todo} updatedTodo - The modified Todo object with the same ID as the todo to replace.
+   * @throws {Error} If the todo with the specified ID is not found.
    */
-  public editTask(updatedTask: Task): void;
+  public editTodo(updatedTodo: Todo): void;
 
   /**
-   * Implementation of editTask that handles both overloads.
-   * @param {string|Task} taskIdOrTask - Either a task ID or a Task object.
-   * @param {function} [updater] - Function that modifies the task object.
-   * @throws {Error} If the task with the specified ID is not found.
+   * Implementation of editTodo that handles both overloads.
+   * @param {string|Todo} todoIdOrTodo - Either a todo ID or a Todo object.
+   * @param {function} [updater] - Function that modifies the todo object.
+   * @throws {Error} If the todo with the specified ID is not found.
    */
-  public editTask(
-    taskIdOrTask: string | Task,
-    updater?: (task: Task) => void
+  public editTodo(
+    todoIdOrTodo: string | Todo,
+    updater?: (todo: Todo) => void
   ): void {
-    if (typeof taskIdOrTask === "string") {
-      // String taskId input
-      const task = this.tasks.find((t) => t.id === taskIdOrTask);
-      if (!task) throw new Error(`Task with id ${taskIdOrTask} not found.`);
-      updater!(task);
+    if (typeof todoIdOrTodo === "string") {
+      // String todoId input
+      const todo = this.todos.find((t) => t.id === todoIdOrTodo);
+      if (!todo) throw new Error(`Todo with id ${todoIdOrTodo} not found.`);
+      updater!(todo);
     } else {
-      // Task object input
-      const index = this.tasks.findIndex((t) => t.id === taskIdOrTask.id);
+      // Todo object input
+      const index = this.todos.findIndex((t) => t.id === todoIdOrTodo.id);
       if (index === -1)
-        throw new Error(`Task with id ${taskIdOrTask.id} not found.`);
-      this.tasks[index] = taskIdOrTask;
+        throw new Error(`Todo with id ${todoIdOrTodo.id} not found.`);
+      this.todos[index] = todoIdOrTodo;
     }
   }
 
   /**
-   * Delete a task by id.
-   * @param {string} taskId - The unique identifier of the task to delete.
+   * Delete a todo by id.
+   * @param {string} todoId - The unique identifier of the todo to delete.
    */
-  public deleteTask(taskId: string): void;
+  public deleteTodo(todoId: string): void;
 
   /**
-   * Delete a task by object reference.
-   * @param {Task} task - The Task object to delete.
+   * Delete a todo by object reference.
+   * @param {Todo} todo - The Todo object to delete.
    */
-  public deleteTask(task: Task): void;
+  public deleteTodo(todo: Todo): void;
 
   /**
-   * Implementation of deleteTask that handles both overloads.
-   * @param {string|Task} taskIdOrTask - Either a task ID or a Task object.
+   * Implementation of deleteTodo that handles both overloads.
+   * @param {string|Todo} todoIdOrTodo - Either a todo ID or a Todo object.
    */
-  public deleteTask(taskIdOrTask: string | Task): void {
-    if (typeof taskIdOrTask === "string") {
-      // String taskId input
-      this.tasks = this.tasks.filter((t) => t.id !== taskIdOrTask);
+  public deleteTodo(todoIdOrTodo: string | Todo): void {
+    if (typeof todoIdOrTodo === "string") {
+      // String todoId input
+      this.todos = this.todos.filter((t) => t.id !== todoIdOrTodo);
     } else {
-      // Task object input
-      this.tasks = this.tasks.filter((t) => t.id !== taskIdOrTask.id);
+      // Todo object input
+      this.todos = this.todos.filter((t) => t.id !== todoIdOrTodo.id);
     }
   }
 
   /**
    * Convert the todo list back to a string representation.
-   * This generates a complete todotxt output with one task per line.
-   * @returns {string} The string representation of all tasks.
+   * This generates a complete todotxt output with one todo per line.
+   * @returns {string} The string representation of all todos.
    */
   public toString(): string {
-    return this.tasks
-      .map((task) => {
-        return task.toString();
+    return this.todos
+      .map((todo) => {
+        return todo.toString();
       })
       .join("\n");
   }
 
   /**
-   * Sort tasks by a given criteria.
+   * Sort todos by a given criteria.
    * @param {string} criteria - The criteria to sort by: "priority", "due", "creation", or "completion".
    */
   public sortBy(
     criteria: "priority" | "due" | "creation" | "completion"
   ): void {
-    this.tasks.sort((a, b) => {
+    this.todos.sort((a, b) => {
       if (criteria === "priority") {
         return (a.priority || "").localeCompare(b.priority || "");
       } else if (criteria === "due") {
@@ -390,15 +390,15 @@ export class TodoList {
   }
 
   /**
-   * Filter tasks based on multiple criteria.
+   * Filter todos based on multiple criteria.
    * @param {Object} criteria - An object containing filter criteria.
-   * @param {boolean} [criteria.completed] - Whether to include completed tasks.
+   * @param {boolean} [criteria.completed] - Whether to include completed todos.
    * @param {string} [criteria.priority] - Filter by priority.
    * @param {string} [criteria.project] - Filter by project name.
    * @param {string} [criteria.context] - Filter by context name.
-   * @param {string} [criteria.dueAfter] - Include tasks due after this date (YYYY-MM-DD).
-   * @param {string} [criteria.dueBefore] - Include tasks due before this date (YYYY-MM-DD).
-   * @returns {Task[]} Array of tasks matching all specified criteria.
+   * @param {string} [criteria.dueAfter] - Include todos due after this date (YYYY-MM-DD).
+   * @param {string} [criteria.dueBefore] - Include todos due before this date (YYYY-MM-DD).
+   * @returns {Todo[]} Array of todos matching all specified criteria.
    */
   public filter(criteria: {
     completed?: boolean;
@@ -407,21 +407,21 @@ export class TodoList {
     context?: string;
     dueAfter?: string;
     dueBefore?: string;
-  }): Task[] {
-    return this.tasks.filter((task) => {
+  }): Todo[] {
+    return this.todos.filter((todo) => {
       if (
         criteria.completed !== undefined &&
-        task.completed !== criteria.completed
+        todo.completed !== criteria.completed
       )
         return false;
-      if (criteria.priority && task.priority !== criteria.priority)
+      if (criteria.priority && todo.priority !== criteria.priority)
         return false;
-      if (criteria.project && !task.projects.includes(criteria.project))
+      if (criteria.project && !todo.projects.includes(criteria.project))
         return false;
-      if (criteria.context && !task.contexts.includes(criteria.context))
+      if (criteria.context && !todo.contexts.includes(criteria.context))
         return false;
 
-      const dueDate = task.keyValues["due"];
+      const dueDate = todo.keyValues["due"];
       if (dueDate) {
         if (criteria.dueAfter && dueDate < criteria.dueAfter) {
           return false;

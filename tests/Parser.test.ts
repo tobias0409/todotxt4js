@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Scanner } from "../src/Scanner";
 import { Parser, ParserOptions, KeyHandler } from "../src/Parser";
-import { TaskParsingError } from "../src/TaskParsingError";
+import { TodoParsingError } from "../src/TodoParsingError";
 import { Token, TokenType } from "../src/Token";
 
 describe("Parser Advanced Features", () => {
@@ -13,34 +13,34 @@ describe("Parser Advanced Features", () => {
 
   describe("Parser Options", () => {
     describe("Duplicate Key Behavior", () => {
-      const taskWithDuplicateKeys =
-        "(A) Test task due:2023-04-01 due:2023-05-01";
+      const todoWithDuplicateKeys =
+        "(A) Test todo due:2023-04-01 due:2023-05-01";
 
       it("should throw error for duplicate keys with 'error' behavior", () => {
-        const tokens = scanner.scan(taskWithDuplicateKeys);
+        const tokens = scanner.scan(todoWithDuplicateKeys);
         const parser = new Parser(tokens, { duplicateKeyBehavior: "error" });
 
-        expect(() => parser.parseTask()).toThrow(TaskParsingError);
-        expect(() => parser.parseTask()).toThrow(/Duplicate key/);
+        expect(() => parser.parseTodo()).toThrow(TodoParsingError);
+        expect(() => parser.parseTodo()).toThrow(/Duplicate key/);
       });
 
       it("should overwrite values with 'overwrite' behavior", () => {
-        const tokens = scanner.scan(taskWithDuplicateKeys);
+        const tokens = scanner.scan(todoWithDuplicateKeys);
         const parser = new Parser(tokens, {
           duplicateKeyBehavior: "overwrite",
         });
 
-        const task = parser.parseTask();
-        expect(task.keyValues["due"]).toBe("2023-05-01");
+        const todo = parser.parseTodo();
+        expect(todo.keyValues["due"]).toBe("2023-05-01");
       });
 
       it("should merge values into array with 'merge' behavior", () => {
-        const tokens = scanner.scan(taskWithDuplicateKeys);
+        const tokens = scanner.scan(todoWithDuplicateKeys);
         const parser = new Parser(tokens, { duplicateKeyBehavior: "merge" });
 
-        const task = parser.parseTask();
-        expect(Array.isArray(task.keyValues["due"])).toBe(true);
-        expect(task.keyValues["due"]).toEqual(["2023-04-01", "2023-05-01"]);
+        const todo = parser.parseTodo();
+        expect(Array.isArray(todo.keyValues["due"])).toBe(true);
+        expect(todo.keyValues["due"]).toEqual(["2023-04-01", "2023-05-01"]);
       });
     });
 
@@ -52,19 +52,19 @@ describe("Parser Advanced Features", () => {
         };
 
         // Valid date should parse successfully
-        const validTokens = scanner.scan("Task due:2023-04-01");
+        const validTokens = scanner.scan("Todo due:2023-04-01");
         const validParser = new Parser(validTokens, {
           customKeyHandlers: [keyHandler],
         });
-        expect(() => validParser.parseTask()).not.toThrow();
+        expect(() => validParser.parseTodo()).not.toThrow();
 
         // Invalid date should throw validation error
-        const invalidTokens = scanner.scan("Task due:01-04-2023");
+        const invalidTokens = scanner.scan("Todo due:01-04-2023");
         const invalidParser = new Parser(invalidTokens, {
           customKeyHandlers: [keyHandler],
         });
-        expect(() => invalidParser.parseTask()).toThrow(TaskParsingError);
-        expect(() => invalidParser.parseTask()).toThrow(/Validation failed/);
+        expect(() => invalidParser.parseTodo()).toThrow(TodoParsingError);
+        expect(() => invalidParser.parseTodo()).toThrow(/Validation failed/);
       });
 
       it("should transform values using custom handler", () => {
@@ -73,12 +73,12 @@ describe("Parser Advanced Features", () => {
           transform: (value) => parseInt(value),
         };
 
-        const tokens = scanner.scan("Task priority:5");
+        const tokens = scanner.scan("Todo priority:5");
         const parser = new Parser(tokens, { customKeyHandlers: [keyHandler] });
 
-        const task = parser.parseTask();
-        expect(typeof task.keyValues["priority"]).toBe("number");
-        expect(task.keyValues["priority"]).toBe(5);
+        const todo = parser.parseTodo();
+        expect(typeof todo.keyValues["priority"]).toBe("number");
+        expect(todo.keyValues["priority"]).toBe(5);
       });
 
       it("should apply multiple custom handlers", () => {
@@ -94,14 +94,14 @@ describe("Parser Advanced Features", () => {
           },
         ];
 
-        const tokens = scanner.scan("Task due:2023-04-01 priority:5");
+        const tokens = scanner.scan("Todo due:2023-04-01 priority:5");
         const parser = new Parser(tokens, { customKeyHandlers: handlers });
 
-        const task = parser.parseTask();
-        expect(task.keyValues["due"] instanceof Date).toBe(true);
-        expect(task.keyValues["due"].getFullYear()).toBe(2023);
-        expect(typeof task.keyValues["priority"]).toBe("number");
-        expect(task.keyValues["priority"]).toBe(5);
+        const todo = parser.parseTodo();
+        expect(todo.keyValues["due"] instanceof Date).toBe(true);
+        expect(todo.keyValues["due"].getFullYear()).toBe(2023);
+        expect(typeof todo.keyValues["priority"]).toBe("number");
+        expect(todo.keyValues["priority"]).toBe(5);
       });
     });
   });
@@ -109,58 +109,58 @@ describe("Parser Advanced Features", () => {
   describe("Token Processing", () => {
     it("should handle empty token arrays", () => {
       const parser = new Parser([], {});
-      const task = parser.parseTask();
+      const todo = parser.parseTodo();
 
-      expect(task).toBeDefined();
-      expect(task.description).toBe("");
+      expect(todo).toBeDefined();
+      expect(todo.description).toBe("");
     });
 
     it("should correctly assign completion date and creation date", () => {
-      // x (A) 2023-04-01 2023-03-15 Task description
+      // x (A) 2023-04-01 2023-03-15 Todo description
       const tokens = [
         new Token(TokenType.COMPLETION, "x"),
         new Token(TokenType.PRIORITY, "(A)"),
         new Token(TokenType.DATE, "2023-04-01"),
         new Token(TokenType.DATE, "2023-03-15"),
-        new Token(TokenType.WORD, "Task"),
+        new Token(TokenType.WORD, "Todo"),
         new Token(TokenType.WORD, "description"),
       ];
 
       const parser = new Parser(tokens);
-      const task = parser.parseTask();
+      const todo = parser.parseTodo();
 
-      expect(task.completed).toBe(true);
-      expect(task.priority).toBe("(A)");
-      expect(task.completionDate).toBe("2023-04-01");
-      expect(task.creationDate).toBe("2023-03-15");
-      expect(task.description).toBe("Task description");
+      expect(todo.completed).toBe(true);
+      expect(todo.priority).toBe("(A)");
+      expect(todo.completionDate).toBe("2023-04-01");
+      expect(todo.creationDate).toBe("2023-03-15");
+      expect(todo.description).toBe("Todo description");
     });
 
     it("should capture projects and contexts in description", () => {
-      const tokens = scanner.scan("Task with +project and @context tags");
+      const tokens = scanner.scan("Todo with +project and @context tags");
       const parser = new Parser(tokens);
-      const task = parser.parseTask();
+      const todo = parser.parseTodo();
 
-      expect(task.description).toBe("Task with +project and @context tags");
-      expect(task.projects).toContain("+project");
-      expect(task.contexts).toContain("@context");
+      expect(todo.description).toBe("Todo with +project and @context tags");
+      expect(todo.projects).toContain("+project");
+      expect(todo.contexts).toContain("@context");
     });
 
     it("should handle complex date patterns correctly", () => {
       // Test different date positions based on completion status
-      const completedTokens = scanner.scan("x 2023-04-01 Task");
+      const completedTokens = scanner.scan("x 2023-04-01 Todo");
       const completedParser = new Parser(completedTokens);
-      const completedTask = completedParser.parseTask();
+      const completedTodo = completedParser.parseTodo();
 
-      expect(completedTask.completed).toBe(true);
-      expect(completedTask.completionDate).toBe("2023-04-01");
+      expect(completedTodo.completed).toBe(true);
+      expect(completedTodo.completionDate).toBe("2023-04-01");
 
-      const activeTokens = scanner.scan("2023-04-01 Task");
+      const activeTokens = scanner.scan("2023-04-01 Todo");
       const activeParser = new Parser(activeTokens);
-      const activeTask = activeParser.parseTask();
+      const activeTodo = activeParser.parseTodo();
 
-      expect(activeTask.completed).toBe(false);
-      expect(activeTask.creationDate).toBe("2023-04-01");
+      expect(activeTodo.completed).toBe(false);
+      expect(activeTodo.creationDate).toBe("2023-04-01");
     });
   });
 
@@ -172,10 +172,10 @@ describe("Parser Advanced Features", () => {
       );
       const parser = new Parser(tokens);
 
-      const task = parser.parseTask();
-      expect(task.completed).toBe(true);
-      expect(task.contexts).toHaveLength(2);
-      expect(task.projects).toHaveLength(2);
+      const todo = parser.parseTodo();
+      expect(todo.completed).toBe(true);
+      expect(todo.contexts).toHaveLength(2);
+      expect(todo.projects).toHaveLength(2);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
-import { TodoList, Task } from "../src/index";
+import { TodoList, Todo } from "../src/index";
 
 describe("TodoList Enhanced Features", () => {
   let todoList: TodoList;
@@ -18,53 +18,53 @@ describe("TodoList Enhanced Features", () => {
     futureDate.setDate(futureDate.getDate() + 30); // 30 days from now
     const futureDateString = futureDate.toISOString().split("T")[0];
 
-    // Add sample tasks with reliable dates
-    const task1 = new Task({
+    // Add sample todos with reliable dates
+    const todo1 = new Todo({
       priority: "A",
-      description: "High priority task",
+      description: "High priority todo",
       contexts: ["@work"],
       projects: ["+project1"],
       keyValues: { due: TODAY },
     });
-    todoList.addTask(task1);
+    todoList.addTodo(todo1);
 
-    const task2 = new Task({
+    const todo2 = new Todo({
       priority: "B",
-      description: "Medium priority task",
+      description: "Medium priority todo",
       contexts: ["@home"],
       projects: ["+project1", "+project2"],
       keyValues: { due: futureDateString },
     });
-    todoList.addTask(task2);
+    todoList.addTodo(todo2);
 
-    const task3 = new Task({
+    const todo3 = new Todo({
       priority: "C",
-      description: "Low priority task overdue",
+      description: "Low priority todo overdue",
       contexts: ["@work"],
       projects: ["+project2"],
       keyValues: { due: pastDateString },
     });
-    todoList.addTask(task3);
+    todoList.addTodo(todo3);
 
-    const completedTask = new Task({
-      description: "Completed task",
+    const completedTodo = new Todo({
+      description: "Completed todo",
       contexts: ["@home"],
       projects: ["+project3"],
     });
-    completedTask.markCompleted("2023-03-01");
-    todoList.addTask(completedTask);
+    completedTodo.markCompleted("2023-03-01");
+    todoList.addTodo(completedTodo);
   });
 
-  describe("Getting Tasks by Line Number", () => {
-    it("should return task at specific line number", () => {
-      const task = todoList.getTaskByLineNumber(1);
-      expect(task).toBeDefined();
-      expect(task?.description).toBe("Medium priority task");
+  describe("Getting Todos by Line Number", () => {
+    it("should return todo at specific line number", () => {
+      const todo = todoList.getTodoByLineNumber(1);
+      expect(todo).toBeDefined();
+      expect(todo?.description).toBe("Medium priority todo");
     });
 
     it("should return undefined for out of bounds line numbers", () => {
-      expect(todoList.getTaskByLineNumber(-1)).toBeUndefined();
-      expect(todoList.getTaskByLineNumber(10)).toBeUndefined();
+      expect(todoList.getTodoByLineNumber(-1)).toBeUndefined();
+      expect(todoList.getTodoByLineNumber(10)).toBeUndefined();
     });
   });
 
@@ -91,16 +91,16 @@ describe("TodoList Enhanced Features", () => {
     });
   });
 
-  describe("Filtering Tasks", () => {
-    it("should filter tasks by multiple criteria", () => {
-      const filteredTasks = todoList.filter({
+  describe("Filtering Todos", () => {
+    it("should filter todos by multiple criteria", () => {
+      const filteredTodos = todoList.filter({
         completed: false,
         project: "+project1",
         context: "@work",
       });
 
-      expect(filteredTasks).toHaveLength(1);
-      expect(filteredTasks[0].description).toBe("High priority task");
+      expect(filteredTodos).toHaveLength(1);
+      expect(filteredTodos[0].description).toBe("High priority todo");
     });
 
     it("should filter by date ranges", () => {
@@ -108,170 +108,170 @@ describe("TodoList Enhanced Features", () => {
       const futureDate = new Date();
       futureDate.setDate(today.getDate() + 60); // 60 days in future
 
-      const futureTasks = todoList.filter({
+      const futureTodos = todoList.filter({
         dueBefore: futureDate.toISOString().split("T")[0],
         dueAfter: today.toISOString().split("T")[0],
       });
 
-      // Should include task due today and future tasks
-      expect(futureTasks.length).toBeGreaterThanOrEqual(1);
+      // Should include todo due today and future todos
+      expect(futureTodos.length).toBeGreaterThanOrEqual(1);
       expect(
-        futureTasks.some(
+        futureTodos.some(
           (t) =>
-            t.description === "High priority task" ||
-            t.description === "Medium priority task"
+            t.description === "High priority todo" ||
+            t.description === "Medium priority todo"
         )
       ).toBe(true);
     });
   });
 
-  describe("Sorting Tasks", () => {
+  describe("Sorting Todos", () => {
     it("should sort by priority", () => {
       todoList.sortBy("priority");
-      const tasks = todoList.getTasks();
+      const todos = todoList.getTodos();
 
-      // Find the first task with priority A - should be first after sorting
-      const taskAPriority = tasks.find((t) => t.priority === "(A)");
-      const taskBPriority = tasks.find((t) => t.priority === "(B)");
-      const taskCPriority = tasks.find((t) => t.priority === "(C)");
+      // Find the first todo with priority A - should be first after sorting
+      const todoAPriority = todos.find((t) => t.priority === "(A)");
+      const todoBPriority = todos.find((t) => t.priority === "(B)");
+      const todoCPriority = todos.find((t) => t.priority === "(C)");
 
-      // Check that tasks with priorities are sorted correctly
-      expect(tasks.indexOf(taskAPriority!)).toBeLessThan(
-        tasks.indexOf(taskBPriority!)
+      // Check that todos with priorities are sorted correctly
+      expect(todos.indexOf(todoAPriority!)).toBeLessThan(
+        todos.indexOf(todoBPriority!)
       );
-      expect(tasks.indexOf(taskBPriority!)).toBeLessThan(
-        tasks.indexOf(taskCPriority!)
+      expect(todos.indexOf(todoBPriority!)).toBeLessThan(
+        todos.indexOf(todoCPriority!)
       );
     });
 
     it("should sort by completion date", () => {
       todoList.sortBy("completion");
-      const tasks = todoList.getTasks();
-      const completedTasks = tasks.filter((t) => t.completed);
-      expect(completedTasks.length).toBeGreaterThan(0);
-      expect(completedTasks[0].description).toBe("Completed task");
+      const todos = todoList.getTodos();
+      const completedTodos = todos.filter((t) => t.completed);
+      expect(completedTodos.length).toBeGreaterThan(0);
+      expect(completedTodos[0].description).toBe("Completed todo");
     });
   });
 
-  describe("Task Queries", () => {
-    it("should get tasks by context", () => {
-      const workTasks = todoList.getTasksByContext("@work");
-      expect(workTasks).toHaveLength(2);
-      expect(workTasks.every((t) => t.contexts.includes("@work"))).toBe(true);
+  describe("Todo Queries", () => {
+    it("should get todos by context", () => {
+      const workTodos = todoList.getTodosByContext("@work");
+      expect(workTodos).toHaveLength(2);
+      expect(workTodos.every((t) => t.contexts.includes("@work"))).toBe(true);
     });
 
-    it("should get tasks by project", () => {
-      const project2Tasks = todoList.getTasksByProject("+project2");
-      expect(project2Tasks).toHaveLength(2);
-      expect(project2Tasks.every((t) => t.projects.includes("+project2"))).toBe(
+    it("should get todos by project", () => {
+      const project2Todos = todoList.getTodosByProject("+project2");
+      expect(project2Todos).toHaveLength(2);
+      expect(project2Todos.every((t) => t.projects.includes("+project2"))).toBe(
         true
       );
     });
 
-    it("should get tasks by property", () => {
-      const priorityATasks = todoList.getTasksByProperty("priority", "(A)");
-      expect(priorityATasks).toHaveLength(1);
-      expect(priorityATasks[0].description).toBe("High priority task");
+    it("should get todos by property", () => {
+      const priorityATodos = todoList.getTodosByProperty("priority", "(A)");
+      expect(priorityATodos).toHaveLength(1);
+      expect(priorityATodos[0].description).toBe("High priority todo");
     });
 
-    it("should get tasks by key-value pair", () => {
-      const todayTasks = todoList.getTasksByKeyValue("due", TODAY);
-      expect(todayTasks.length).toBeGreaterThan(0);
-      expect(todayTasks[0].description).toBe("High priority task");
+    it("should get todos by key-value pair", () => {
+      const todayTodos = todoList.getTodosByKeyValue("due", TODAY);
+      expect(todayTodos.length).toBeGreaterThan(0);
+      expect(todayTodos[0].description).toBe("High priority todo");
     });
   });
 
   describe("Date-Based Queries", () => {
-    it("should get due today tasks", () => {
-      const todayTasks = todoList.getDueTodayTasks();
-      expect(todayTasks.length).toBeGreaterThan(0);
-      expect(todayTasks[0].keyValues.due).toBe(TODAY);
+    it("should get due today todos", () => {
+      const todayTodos = todoList.getDueTodayTodos();
+      expect(todayTodos.length).toBeGreaterThan(0);
+      expect(todayTodos[0].keyValues.due).toBe(TODAY);
     });
 
-    it("should get overdue tasks", () => {
-      const overdueTasks = todoList.getOverdueTasks();
-      expect(overdueTasks.length).toBeGreaterThan(0);
+    it("should get overdue todos", () => {
+      const overdueTodos = todoList.getOverdueTodos();
+      expect(overdueTodos.length).toBeGreaterThan(0);
 
-      // Find the task that has "Low priority task overdue" in the description
-      const lowPriorityTask = overdueTasks.find(
-        (t) => t.description === "Low priority task overdue"
+      // Find the todo that has "Low priority todo overdue" in the description
+      const lowPriorityTodo = overdueTodos.find(
+        (t) => t.description === "Low priority todo overdue"
       );
-      expect(lowPriorityTask).toBeDefined();
+      expect(lowPriorityTodo).toBeDefined();
     });
 
-    it("should get tasks due in next N days", () => {
-      const dueSoonTasks = todoList.getDueInNextNDaysTasks(365);
-      expect(dueSoonTasks.length).toBeGreaterThan(1);
+    it("should get todos due in next N days", () => {
+      const dueSoonTodos = todoList.getDueInNextNDaysTodos(365);
+      expect(dueSoonTodos.length).toBeGreaterThan(1);
 
-      // The task due today and the future task should be included
+      // The todo due today and the future todo should be included
       expect(
-        dueSoonTasks.some((t) => t.description === "High priority task")
+        dueSoonTodos.some((t) => t.description === "High priority todo")
       ).toBe(true);
       expect(
-        dueSoonTasks.some((t) => t.description === "Medium priority task")
+        dueSoonTodos.some((t) => t.description === "Medium priority todo")
       ).toBe(true);
     });
   });
 
-  describe("Task Operations", () => {
-    it("should add a task with string parsing", () => {
-      todoList.addTask(
-        "(D) New task from string @stringContext +stringProject"
+  describe("Todo Operations", () => {
+    it("should add a todo with string parsing", () => {
+      todoList.addTodo(
+        "(D) New todo from string @stringContext +stringProject"
       );
-      const lastTask = todoList.getTasks()[todoList.getTasks().length - 1];
+      const lastTodo = todoList.getTodos()[todoList.getTodos().length - 1];
 
-      expect(lastTask.priority).toBe("(D)");
-      expect(lastTask.description).toContain("New task from string");
-      expect(lastTask.contexts).toContain("@stringContext");
-      expect(lastTask.projects).toContain("+stringProject");
+      expect(lastTodo.priority).toBe("(D)");
+      expect(lastTodo.description).toContain("New todo from string");
+      expect(lastTodo.contexts).toContain("@stringContext");
+      expect(lastTodo.projects).toContain("+stringProject");
     });
 
-    it("should edit a task with an updater function", () => {
-      const taskToEdit = todoList.getTasks()[0];
-      todoList.editTask(taskToEdit.id, (task) => {
-        task.setDescription("Updated description");
-        task.setPriority("Z");
+    it("should edit a todo with an updater function", () => {
+      const todoToEdit = todoList.getTodos()[0];
+      todoList.editTodo(todoToEdit.id, (todo) => {
+        todo.setDescription("Updated description");
+        todo.setPriority("Z");
       });
 
-      const updatedTask = todoList.getTask(taskToEdit.id);
-      expect(updatedTask?.description).toBe("Updated description");
-      expect(updatedTask?.priority).toBe("(Z)");
+      const updatedTodo = todoList.getTodo(todoToEdit.id);
+      expect(updatedTodo?.description).toBe("Updated description");
+      expect(updatedTodo?.priority).toBe("(Z)");
     });
 
-    it("should replace a task", () => {
-      const originalTask = todoList.getTasks()[0];
-      const replacementTask = new Task({
-        description: "Replacement task",
-        priority: originalTask.priority,
+    it("should replace a todo", () => {
+      const originalTodo = todoList.getTodos()[0];
+      const replacementTodo = new Todo({
+        description: "Replacement todo",
+        priority: originalTodo.priority,
       });
 
       // Important: Use the same ID to ensure replacement works
-      replacementTask.id = originalTask.id;
+      replacementTodo.id = originalTodo.id;
 
-      todoList.editTask(replacementTask);
+      todoList.editTodo(replacementTodo);
 
-      const updatedTask = todoList.getTask(originalTask.id);
-      expect(updatedTask?.description).toBe("Replacement task");
+      const updatedTodo = todoList.getTodo(originalTodo.id);
+      expect(updatedTodo?.description).toBe("Replacement todo");
     });
 
-    it("should delete a task by id", () => {
-      const originalCount = todoList.getTasks().length;
-      const taskToDelete = todoList.getTasks()[0];
+    it("should delete a todo by id", () => {
+      const originalCount = todoList.getTodos().length;
+      const todoToDelete = todoList.getTodos()[0];
 
-      todoList.deleteTask(taskToDelete.id);
+      todoList.deleteTodo(todoToDelete.id);
 
-      expect(todoList.getTasks().length).toBe(originalCount - 1);
-      expect(todoList.getTask(taskToDelete.id)).toBeUndefined();
+      expect(todoList.getTodos().length).toBe(originalCount - 1);
+      expect(todoList.getTodo(todoToDelete.id)).toBeUndefined();
     });
 
-    it("should delete a task by object", () => {
-      const originalCount = todoList.getTasks().length;
-      const taskToDelete = todoList.getTasks()[0];
+    it("should delete a todo by object", () => {
+      const originalCount = todoList.getTodos().length;
+      const todoToDelete = todoList.getTodos()[0];
 
-      todoList.deleteTask(taskToDelete);
+      todoList.deleteTodo(todoToDelete);
 
-      expect(todoList.getTasks().length).toBe(originalCount - 1);
-      expect(todoList.getTask(taskToDelete.id)).toBeUndefined();
+      expect(todoList.getTodos().length).toBe(originalCount - 1);
+      expect(todoList.getTodo(todoToDelete.id)).toBeUndefined();
     });
   });
 
@@ -280,14 +280,14 @@ describe("TodoList Enhanced Features", () => {
       const str = todoList.toString();
       const lines = str.split("\n");
 
-      expect(lines.length).toBe(4); // 4 tasks
+      expect(lines.length).toBe(4); // 4 todos
       expect(lines.some((line) => line.includes("(A)"))).toBe(true);
-      expect(lines.some((line) => line.includes("High priority task"))).toBe(
+      expect(lines.some((line) => line.includes("High priority todo"))).toBe(
         true
       );
 
       expect(lines.some((line) => line.includes("x 2023-03-01"))).toBe(true);
-      expect(lines.some((line) => line.includes("Completed task"))).toBe(true);
+      expect(lines.some((line) => line.includes("Completed todo"))).toBe(true);
     });
   });
 });
