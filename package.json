@@ -1,7 +1,7 @@
 {
   "name": "todotxt4js",
-  "version": "0.0.1",
-  "description": "A scanner and parser implemented in Typescript for Todo.txt files.",
+  "version": "0.1.0",
+  "description": "A comprehensive TypeScript library for parsing and managing todo.txt files. Features a robust token-based parser, complete task management capabilities, and flexible filtering options. ",
   "license": "MIT",
   "author": "tobias0409",
   "keywords": [
