@@ -84,7 +84,7 @@ export class Parser {
 
     // Process optional priority.
     if (this.match(TokenType.PRIORITY)) {
-      todo.priority = this.currentToken()!.value;
+      todo.setPriority(this.currentToken()!.value);
       this.consume();
     }
 
@@ -142,32 +142,36 @@ export class Parser {
                 `Duplicate key '${keyName}' encountered`
               );
             case "merge":
-              if (!Array.isArray(todo.keyValues[keyName])) {
-                todo.keyValues[keyName] = [todo.keyValues[keyName]];
+              if (!todo.keyValues[keyName]) {
+                todo.setKeyValue(keyName, value);
+              } else if (Array.isArray(todo.keyValues[keyName])) {
+                todo.setKeyValue(keyName, [...todo.keyValues[keyName], value]);
+              } else {
+                const existingValue = todo.keyValues[keyName];
+                todo.setKeyValue(keyName, [existingValue, value]);
               }
-              (todo.keyValues[keyName] as any[]).push(value);
               break;
             case "overwrite":
             default:
-              todo.keyValues[keyName] = value;
+              todo.setKeyValue(keyName, value);
               break;
           }
         } else {
-          todo.keyValues[keyName] = value;
+          todo.setKeyValue(keyName, value);
         }
       } else {
         const token = this.consume();
         descriptionParts.push(token.value);
         // Capture projects and contexts.
         if (token.type === TokenType.PROJECT) {
-          todo.projects.push(token.value);
+          todo.addProject(token.value);
         } else if (token.type === TokenType.CONTEXT) {
-          todo.contexts.push(token.value);
+          todo.addContext(token.value);
         }
       }
     }
 
-    todo.description = descriptionParts.join(" ").trim();
+    todo.setDescription(descriptionParts.join(" ").trim());
     return todo;
   }
 

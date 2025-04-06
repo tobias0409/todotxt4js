@@ -1,17 +1,18 @@
 # todotxt4js
 
-A comprehensive TypeScript implementation of the todo.txt format specification. This library provides robust parsing, querying, and management of todo.txt tasks with additional functionality like recurrence patterns, due dates, and metadata handling.
+A comprehensive TypeScript implementation of the todo.txt format specification. This library provides robust parsing, querying, and management of todo.txt todos with additional functionality like recurrence patterns, due dates, and metadata handling.
 
 ## Features
 
-- Robust Parsing: Parse tasks with completion markers, priorities, dates, projects, contexts, and key-value pairs
-- Task Management: Create, edit, delete, and query tasks with a fluent API
+- Robust Parsing: Parse todos with completion markers, priorities, dates, projects, contexts, and key-value pairs
+- Task Management: Create, edit, delete, and query todos with a fluent API
 - Metadata Support: Work with projects, contexts, priorities, and custom key-value pairs
 - Date Handling: Due dates, overdue detection, days-until-due calculations
-- Recurrence Patterns: Support for recurring tasks (daily, weekly, monthly, yearly)
+- Recurrence Patterns: Support for recurring todos (daily, weekly, monthly, yearly)
 - Filtering & Sorting: Filter by multiple criteria and sort by different properties
 - Customizable Behavior: Configure duplicate key handling and register custom key handlers for validation/transformation
 - Full TypeScript Support: Strong typing for improved development experience
+- Compatibility: Uses character-by-character parsing instead of regular expressions
 
 ## Installation
 
@@ -54,8 +55,8 @@ todoList.addTodo(
 const newTodo = new Todo({
   description: "Prepare presentation",
   priority: "C",
-  project: "Work", // Will be formatted to +Work
-  context: "computer", // Will be formatted to @computer
+  projects: ["Work"], // Will be formatted to +Work
+  contexts: ["computer"], // Will be formatted to @computer
   due: "2023-04-15",
 });
 todoList.addTodo(newTodo);
@@ -70,7 +71,7 @@ console.log("Todos due soon:", upcomingTodos.length);
 // Filter todos by multiple criteria
 const phoneTodos = todoList.filter({
   completed: false,
-  context: "@phone",
+  contexts: ["@phone"],
   dueBefore: "2023-05-01",
 });
 console.log("Phone todos due before May:", phoneTodos.length);
@@ -80,7 +81,7 @@ const projects = todoList.getProjects();
 console.log("Projects:", projects);
 ```
 
-### Working with Tasks
+### Working with Todos
 
 ```ts
 import { Todo, RecurrencePattern } from "todotxt4js";
@@ -89,8 +90,8 @@ import { Todo, RecurrencePattern } from "todotxt4js";
 const todo = new Todo({
   description: "Weekly team meeting",
   priority: "B",
-  context: "work",
-  project: "TeamSync",
+  contexts: ["work"],
+  projects: ["TeamSync"],
   due: "2023-05-01",
 });
 
@@ -150,8 +151,8 @@ const allKeyNames = todoList.getKeyNames();
 const filteredTodos = todoList.filter({
   completed: false,
   priority: "(A)",
-  project: "+Work",
-  context: "@computer",
+  projects: ["+Work"],
+  contexts: ["@computer"],
   dueAfter: "2023-04-01",
   dueBefore: "2023-05-01",
 });

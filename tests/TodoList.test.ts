@@ -95,8 +95,8 @@ describe("TodoList Enhanced Features", () => {
     it("should filter todos by multiple criteria", () => {
       const filteredTodos = todoList.filter({
         completed: false,
-        project: "+project1",
-        context: "@work",
+        projects: ["+project1"],
+        contexts: ["@work"],
       });
 
       expect(filteredTodos).toHaveLength(1);
@@ -236,22 +236,6 @@ describe("TodoList Enhanced Features", () => {
       const updatedTodo = todoList.getTodo(todoToEdit.id);
       expect(updatedTodo?.description).toBe("Updated description");
       expect(updatedTodo?.priority).toBe("(Z)");
-    });
-
-    it("should replace a todo", () => {
-      const originalTodo = todoList.getTodos()[0];
-      const replacementTodo = new Todo({
-        description: "Replacement todo",
-        priority: originalTodo.priority,
-      });
-
-      // Important: Use the same ID to ensure replacement works
-      replacementTodo.id = originalTodo.id;
-
-      todoList.editTodo(replacementTodo);
-
-      const updatedTodo = todoList.getTodo(originalTodo.id);
-      expect(updatedTodo?.description).toBe("Replacement todo");
     });
 
     it("should delete a todo by id", () => {

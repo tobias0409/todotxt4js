@@ -168,7 +168,7 @@ describe("Parser Advanced Features", () => {
     it("should handle malformed token sequences gracefully", () => {
       // Try some unusual but valid token sequences
       const tokens = scanner.scan(
-        "x x x x @context @context +project +project"
+        "x x x x @context1 @context2 +project1 +project2"
       );
       const parser = new Parser(tokens);
 

@@ -52,8 +52,8 @@ describe("Todo Features", () => {
       const todo = new Todo({
         description: "Call Mom",
         priority: "A",
-        context: "phone",
-        project: "Family",
+        projects: ["Family"],
+        contexts: ["phone"],
         due: "2023-04-05",
       });
 
@@ -165,7 +165,7 @@ describe("Todo Features", () => {
     });
   });
 
-  describe("Context Management", () => {
+  describe("Contexts Management", () => {
     it("should add contexts with @ symbol", () => {
       todo.addContext("work");
       expect(todo.contexts).toContain("@work");
@@ -195,7 +195,7 @@ describe("Todo Features", () => {
     });
   });
 
-  describe("Project Management", () => {
+  describe("Projects Management", () => {
     it("should add projects with + symbol", () => {
       todo.addProject("personal");
       expect(todo.projects).toContain("+personal");
@@ -392,9 +392,9 @@ describe("Todo Features", () => {
       expect(clone.id).not.toBe(todo.id);
 
       // Verify it's a deep copy (modifying one doesn't affect the other)
-      clone.description = "Modified todo";
-      clone.projects.push("+newproject");
-      clone.keyValues.due = "2023-05-01";
+      clone.setDescription("Modified todo");
+      clone.addProject("+newproject");
+      clone.setDueDate("2023-05-01");
 
       expect(todo.description).toBe("Original todo");
       expect(todo.projects).not.toContain("+newproject");

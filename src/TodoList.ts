@@ -394,8 +394,8 @@ export class TodoList {
    * @param {Object} criteria - An object containing filter criteria.
    * @param {boolean} [criteria.completed] - Whether to include completed todos.
    * @param {string} [criteria.priority] - Filter by priority.
-   * @param {string} [criteria.project] - Filter by project name.
-   * @param {string} [criteria.context] - Filter by context name.
+   * @param {string[]} [criteria.projects] - Filter by project names.
+   * @param {string[]} [criteria.contexts] - Filter by context names.
    * @param {string} [criteria.dueAfter] - Include todos due after this date (YYYY-MM-DD).
    * @param {string} [criteria.dueBefore] - Include todos due before this date (YYYY-MM-DD).
    * @returns {Todo[]} Array of todos matching all specified criteria.
@@ -403,8 +403,8 @@ export class TodoList {
   public filter(criteria: {
     completed?: boolean;
     priority?: string;
-    project?: string;
-    context?: string;
+    projects?: string[];
+    contexts?: string[];
     dueAfter?: string;
     dueBefore?: string;
   }): Todo[] {
@@ -416,10 +416,20 @@ export class TodoList {
         return false;
       if (criteria.priority && todo.priority !== criteria.priority)
         return false;
-      if (criteria.project && !todo.projects.includes(criteria.project))
-        return false;
-      if (criteria.context && !todo.contexts.includes(criteria.context))
-        return false;
+
+      if (criteria.projects && criteria.projects.length > 0) {
+        if (
+          !criteria.projects.some((project) => todo.projects.includes(project))
+        )
+          return false;
+      }
+
+      if (criteria.contexts && criteria.contexts.length > 0) {
+        if (
+          !criteria.contexts.some((context) => todo.contexts.includes(context))
+        )
+          return false;
+      }
 
       const dueDate = todo.keyValues["due"];
       if (dueDate) {
