@@ -1,5 +1,7 @@
 # todotxt4js
 
+[![npm version](https://img.shields.io/npm/v/todotxt4js.svg)](https://www.npmjs.com/package/todotxt4js)
+
 A comprehensive TypeScript implementation of the todo.txt format specification. This library provides robust parsing, querying, and management of todo.txt todos with additional functionality like recurrence patterns, due dates, and metadata handling.
 
 ## Features
